@@ -445,9 +445,254 @@ int main() {
       </code></pre>
       <button id="copy-btn" data-code="code-kruskal">Copy Code</button>
     </div>
+
+    <!-- Codeblock-8: Median Finding -->
+<div class="code-block">
+    <h2>Codeblock-8: Median Finding</h2>
+    <pre><code id="code-median">
+  #include &lt;bits/stdc++.h&gt;
+  using namespace std;
+  
+  int findMedian(vector&lt;int&gt;&amp; arr) {
+      sort(arr.begin(), arr.end());
+      return arr[arr.size() / 2];
+  }
+  
+  int rankOfElement(int r, vector&lt;int&gt;&amp; A) {
+      int n = A.size();
+      
+      if (n == 1) {
+          return A[0];
+      }
+      
+      int numGroups = (n + 4) / 5;
+      vector&lt;int&gt; B;
+      
+      for (int i = 0; i &lt; n; i += 5) {
+          int end = min(i + 5, n);
+          vector&lt;int&gt; temp(A.begin() + i, A.begin() + end);
+          B.push_back(findMedian(temp));
+      }
+      
+      int Xmed = rankOfElement(numGroups / 2, B);
+      
+      vector&lt;int&gt; left, right;
+      int countXmed = 0;
+      
+      for (int num : A) {
+          if (num &lt; Xmed) {
+              left.push_back(num);
+          } else if (num &gt; Xmed) {
+              right.push_back(num);
+          } else {
+              countXmed++;
+          }
+      }
+      
+      if (left.size() == r - 1) {
+          return Xmed;
+      }
+      
+      if (left.size() &gt; r - 1) {
+          return rankOfElement(r, left);
+      }
+      
+      return rankOfElement(r - left.size() - countXmed, right);
+  }
+  
+  int main() {
+      vector&lt;int&gt; A = {12, 3, 5, 7, 19, 26, 45, 17, 1, 2, 8, 4, 6, 10};
+      int r = 11;
+      cout << "The element at rank " << r << " is " << rankOfElement(r, A) << endl;
+      return 0;
+  }
+    </code></pre>
+    <button id="copy-btn" data-code="code-median">Copy Code</button>
+  </div>
+  
+  <!-- Codeblock-9: Closest Pair -->
+  <div class="code-block">
+    <h2>Codeblock-9: Closest Pair</h2>
+    <pre><code id="code-closest-pair">
+  #include &lt;bits/stdc++.h&gt;
+  using namespace std;
+  
+  struct Coordinate {
+      double x, y;
+  };
+  
+  double computeSeparation(Coordinate p1, Coordinate p2) {
+      return sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2));
+  }
+  
+  bool arrangeByX(Coordinate a, Coordinate b) { return a.x &lt; b.x; }
+  bool arrangeByY(Coordinate a, Coordinate b) { return a.y &lt; b.y; }
+  
+  double bruteForceMinDist(vector&lt;Coordinate&gt;&amp; coords, int begin, int finish) {
+      double smallestGap = numeric_limits&lt;double&gt;::max();
+      
+      for (int i = begin; i &lt; finish; i++) {
+          for (int j = i + 1; j &lt;= finish; j++) {
+              double currentGap = computeSeparation(coords[i], coords[j]);
+              smallestGap = min(smallestGap, currentGap);
+          }
+      }
+      
+      return smallestGap;
+  }
+  
+  double stripClosestPair(vector&lt;Coordinate&gt;&amp; section, double minGap) {
+      double result = minGap;
+      
+      sort(section.begin(), section.end(), arrangeByY);
+      
+      for (int i = 0; i &lt; section.size(); i++) {
+          for (int j = i + 1; j &lt; section.size() &amp;&amp; (section[j].y - section[i].y) &lt; result; j++) {
+              result = min(result, computeSeparation(section[i], section[j]));
+          }
+      }
+      
+      return result;
+  }
+  
+  double recursiveClosestPair(vector&lt;Coordinate&gt;&amp; coords, int begin, int finish) {
+      if (finish - begin &lt;= 3) {
+          return bruteForceMinDist(coords, begin, finish);
+      }
+      
+      int midpoint = (begin + finish) / 2;
+      Coordinate midCoord = coords[midpoint];
+      
+      double leftGap = recursiveClosestPair(coords, begin, midpoint);
+      double rightGap = recursiveClosestPair(coords, midpoint + 1, finish);
+      double minGap = min(leftGap, rightGap);
+      
+      vector&lt;Coordinate&gt; section;
+      for (int i = begin; i &lt;= finish; i++) {
+          if (abs(coords[i].x - midCoord.x) &lt; minGap) {
+              section.push_back(coords[i]);
+          }
+      }
+      
+      return min(minGap, stripClosestPair(section, minGap));
+  }
+  
+  double closestPairDistance(vector&lt;Coordinate&gt;&amp; coords) {
+      sort(coords.begin(), coords.end(), arrangeByX);
+      return recursiveClosestPair(coords, 0, coords.size() - 1);
+  }
+  
+  int main() {
+      vector&lt;Coordinate&gt; samplePoints = {
+          {2, 3}, {12, 30}, {40, 50}, 
+          {5, 1}, {12, 10}, {3, 4}
+      };
+      
+      cout << "Closest pair distance: " << closestPairDistance(samplePoints) << endl;
+      return 0;
+  }
+    </code></pre>
+    <button id="copy-btn" data-code="code-closest-pair">Copy Code</button>
+  </div>
+  
+  <!-- Codeblock-10: Convex Hull -->
+  <div class="code-block">
+    <h2>Codeblock-10: Convex Hull</h2>
+    <pre><code id="code-convexhull">
+  #include &lt;bits/stdc++.h&gt;
+  using namespace std;
+  
+  struct Coordinate {
+      int x, y;
+  };
+  
+  // Determine orientation of three points (clockwise, counterclockwise, collinear)
+  int computeOrientation(Coordinate c1, Coordinate c2, Coordinate c3) {
+      int crossProd = (c2.y - c1.y) * (c3.x - c2.x) - (c2.x - c1.x) * (c3.y - c2.y);
+      
+      if (crossProd == 0) return 0;  // Collinear
+      return (crossProd &gt; 0) ? 1 : 2; // Clockwise (1) or Counterclockwise (2)
+  }
+  
+  Coordinate referencePoint;
+  
+  bool sortByPolarAngle(Coordinate a, Coordinate b) {
+      int orient = computeOrientation(referencePoint, a, b);
+      
+      if (orient == 0) {
+          return (a.x - referencePoint.x) * (a.x - referencePoint.x) + 
+                 (a.y - referencePoint.y) * (a.y - referencePoint.y) &lt; 
+                 (b.x - referencePoint.x) * (b.x - referencePoint.x) + 
+                 (b.y - referencePoint.y) * (b.y - referencePoint.y);
+      }
+      
+      return orient == 2; 
+  }
+  
+  vector&lt;Coordinate&gt; generateConvexHull(vector&lt;Coordinate&gt;&amp; coords) {
+      int numPoints = coords.size();
+      
+      if (numPoints &lt; 3) return {};
+  
+      int lowestIndex = 0;
+      int minY = coords[0].y;
+      
+      for (int i = 1; i &lt; numPoints; i++) {
+          int y = coords[i].y;
+          
+          if (y &lt; minY || (y == minY && coords[i].x &lt; coords[lowestIndex].x)) {
+              minY = y;
+              lowestIndex = i;
+          }
+      }
+      
+      swap(coords[0], coords[lowestIndex]);
+      referencePoint = coords[0];
+      
+      sort(coords.begin() + 1, coords.end(), sortByPolarAngle);
+      
+      vector&lt;Coordinate&gt; hull;
+      hull.push_back(coords[0]);
+      hull.push_back(coords[1]);
+      
+      for (int i = 2; i &lt; numPoints; i++) {
+          while (hull.size() &gt; 1 && 
+                 computeOrientation(hull[hull.size() - 2], hull[hull.size() - 1], coords[i]) != 2) {
+              hull.pop_back();
+          }
+          
+          hull.push_back(coords[i]);
+      }
+      
+      return hull;
+  }
+  
+  int main() {
+      vector&lt;Coordinate&gt; samplePoints = {
+          {0, 3}, {2, 2}, {1, 1}, {2, 1}, 
+          {3, 0}, {0, 0}, {3, 3}
+      };
+      
+      vector&lt;Coordinate&gt; hull = generateConvexHull(samplePoints);
+      
+      cout << "Convex Hull points:\n";
+      for (auto coord : hull) {
+          cout << "(" << coord.x << ", " << coord.y << ")\n";
+      }
+      
+      return 0;
+  }
+    </code></pre>
+    <button id="copy-btn" data-code="code-convexhull">Copy Code</button>
+  </div>
+  
+
     
   </div>
   
   <script src="script.js"></script>
+
+
+    
 </body>
 </html>
