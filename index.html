@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C++ Code Blocks Collection</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>C++ Code Blocks Collection</h1>
+    
+    <!-- Codeblock-1: Fractional Knapsack -->
+    <div class="code-block">
+      <h2>Codeblock-1: Fractional Knapsack</h2>
+      <pre><code id="code-fractional-knapsack">
+#include&lt;bits/stdc++.h&gt;
+using namespace std;
+
+bool compare(pair&lt;int, int&gt; a, pair&lt;int, int&gt; b) {
+    double r1 = (double)a.first / a.second;
+    double r2 = (double)b.first / b.second;
+    return r1 &gt; r2;
+}
+
+double fractionalKnapsack(int W, vector&lt;pair&lt;int, int&gt;&gt;&amp; arr) {
+    sort(arr.begin(), arr.end(), compare);
+    double totalValue = 0.0;
+    
+    for (int i = 0; i &lt; arr.size(); i++) {
+        if (W &gt;= arr[i].second) {
+            totalValue += arr[i].first;
+            W -= arr[i].second;
+        } else {
+            totalValue += arr[i].first * ((double)W / arr[i].second);
+            break;
+        }
+    }
+    return totalValue;
+}
+
+int main(){
+    cout &lt;&lt; "Enter number of items:" &lt;&lt; endl;
+    int n;
+    cin &gt;&gt; n; 
+    vector&lt;pair&lt;int, int&gt;&gt; arr(n);
+    cout &lt;&lt; "Enter value and weight of items:" &lt;&lt; endl;
+    for(int i = 0; i &lt; n; i++){
+        cin &gt;&gt; arr[i].first >> arr[i].second;
+    }
+    cout &lt;&lt; "Enter maximum weight of bag:" &lt;&lt; endl;
+    int W;
+    cin &gt;&gt; W;
+    cout &lt;&lt; "Maximum value: " &lt;&lt; fractionalKnapsack(W, arr) &lt;&lt; endl;
+    return 0;
+}
+      </code></pre>
+      <button id="copy-btn" data-code="code-fractional-knapsack">Copy Code</button>
+    </div>
+
+    <!-- Codeblock-2: Huffman -->
+    <div class="code-block">
+      <h2>Codeblock-2: Huffman</h2>
+      <pre><code id="code-huffman">
+#include&lt;bits/stdc++.h&gt;
+using namespace std;
+
+struct Node {
+    char data;
+    int freq;
+    Node *left, *right;
+    Node(char d, int f) : data(d), freq(f), left(nullptr), right(nullptr) {}
+};
+
+struct compare {
+    bool operator()(Node* l, Node* r) {
+        return l-&gt;freq &gt; r-&gt;freq;
+    }
+};
+
+void printCodes(Node* root, string str) {
+    if (!root) return;
+    if (root-&gt;data != '$')
+        cout &lt;&lt; root-&gt;data &lt;&lt; ": " &lt;&lt; str &lt;&lt; "\n";
+    printCodes(root-&gt;left, str + "0");
+    printCodes(root-&gt;right, str + "1");
+}
+
+void huffmanCode(vector&lt;char&gt;&amp; data, vector&lt;int&gt;&amp; freq) {
+    priority_queue&lt;Node*, vector&lt;Node*&gt;, compare&gt; pq;
+    for (int i = 0; i &lt; data.size(); i++)
+        pq.push(new Node(data[i], freq[i]));
+    
+    while (pq.size() &gt; 1) {
+        Node *left = pq.top(); pq.pop();
+        Node *right = pq.top(); pq.pop();
+        Node *top = new Node('$', left-&gt;freq + right-&gt;freq);
+        top-&gt;left = left;
+        top-&gt;right = right;
+        pq.push(top);
+    }
+    printCodes(pq.top(), "");
+}
+
+int main(){
+    int n;
+    cin &gt;&gt; n;
+    vector&lt;char&gt; data(n);
+    for(int i = 0; i &lt; n; i++){
+        cin &gt;&gt; data[i];
+    }
+    vector&lt;int&gt; freq(n);
+    for(int i = 0; i &lt; n; i++){
+        cin &gt;&gt; freq[i];
+    }
+    huffmanCode(data, freq);
+    return 0;
+}
+      </code></pre>
+      <button id="copy-btn" data-code="code-huffman">Copy Code</button>
+    </div>
+
+    <!-- Codeblock-3: Job Scheduling -->
+    <div class="code-block">
+      <h2>Codeblock-3: Job Scheduling</h2>
+      <pre><code id="code-job-scheduling">
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+struct Job {
+    char id;
+    int deadline, profit;
+};
+
+bool comparison(Job a, Job b) {
+    return (a.profit &gt; b.profit);
+}
+
+void jobScheduling(vector&lt;Job&gt;&amp; arr, int n) {
+    sort(arr.begin(), arr.end(), comparison);
+    int maxDeadline = 0;
+    for (int i = 0; i &lt; n; i++)
+        maxDeadline = max(maxDeadline, arr[i].deadline);
+    
+    vector&lt;char&gt; result(maxDeadline, ' ');
+    int totalProfit = 0;
+    
+    for (int i = 0; i &lt; n; i++) {
+        for (int j = min(maxDeadline, arr[i].deadline) - 1; j &gt;= 0; j--) {
+            if (result[j] == ' ') {
+                result[j] = arr[i].id;
+                totalProfit += arr[i].profit;
+                break;
+            }
+        }
+    }
+    
+    cout &lt;&lt; "Scheduled Jobs: ";
+    for (char c : result) if (c != ' ') cout &lt;&lt; c &lt;&lt; " ";
+    cout &lt;&lt; "\nTotal Profit: " &lt;&lt; totalProfit &lt;&lt; endl;
+}
+
+int main() {
+    vector&lt;Job&gt; arr = {{'p', 3, 80}, {'q', 2, 30}, {'r', 1, 45},
+                           {'s', 2, 60}, {'t', 1, 20}};
+    jobScheduling(arr, arr.size());
+    return 0;
+}
+      </code></pre>
+      <button id="copy-btn" data-code="code-job-scheduling">Copy Code</button>
+    </div>
+    
+    <!-- Codeblock-4: Knapsack_dp -->
+    <div class="code-block">
+      <h2>Codeblock-4: Knapsack DP</h2>
+      <pre><code id="code-knapsack">
+#include "bits/stdc++.h"
+#define Code ios::sync_with_stdio(false);
+#define By cin.tie(0);
+#define Nishit cout.tie(0);
+using ll = long long;
+#define int ll
+#define endl '\n'
+const int mod = 1000000007;
+using namespace std;
+
+int knapsack(int W, vector&lt;int&gt;&amp; wt, vector&lt;int&gt;&amp; val, int n) {
+    vector&lt;vector&lt;int&gt;&gt; dp(n + 1, vector&lt;int&gt;(W + 1, 0));
+    
+    for (int i = 1; i &lt;= n; i++) {
+        for (int w = 0; w &lt;= W; w++) {
+            if (wt[i-1] &lt;= w)
+                dp[i][w] = max(val[i-1] + dp[i-1][w-wt[i-1]], dp[i-1][w]);
+            else
+                dp[i][w] = dp[i-1][w];
+        }
+    }
+    return dp[n][W];
+}
+
+void solve()
+{
+    int n;
+    cin &gt;&gt; n; 
+    vector&lt;int&gt; val(n);
+    for (int i = 0; i &lt; n; i++)
+        cin &gt;&gt; val[i];
+    vector&lt;int&gt; wt(n);
+    for (int i = 0; i &lt; n; i++)
+        cin &gt;&gt; wt[i];
+    int W;
+    cin &gt;&gt; W;
+    cout &lt;&lt; "Maximum value: " &lt;&lt; knapsack(W, wt, val, n) &lt;&lt; endl;    
+}
+
+int32_t main()
+{
+    Code By Nishit
+    int t = 1;
+    cin &gt;&gt; t;
+    while (t--)
+    {
+        solve();
+    }
+    return 0;
+}
+      </code></pre>
+      <button id="copy-btn" data-code="code-knapsack">Copy Code</button>
+    </div>
+    
+    <!-- Codeblock-5: LCS_dp -->
+    <div class="code-block">
+      <h2>Codeblock-5: LCS DP</h2>
+      <pre><code id="code-lcs">
+#include "bits/stdc++.h"
+#define Code ios::sync_with_stdio(false);
+#define By cin.tie(0);
+#define Nishit cout.tie(0);
+using ll = long long;
+#define int ll
+#define endl '\n'
+const int mod = 1000000007;
+using namespace std;
+
+int lcs(string X, string Y) {
+    int m = X.length(), n = Y.length();
+    vector&lt;vector&lt;int&gt;&gt; dp(m + 1, vector&lt;int&gt;(n + 1, 0));
+    
+    for (int i = 1; i &lt;= m; i++) {
+        for (int j = 1; j &lt;= n; j++) {
+            if (X[i-1] == Y[j-1])
+                dp[i][j] = dp[i-1][j-1] + 1;
+            else
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1]);
+        }
+    }
+    return dp[m][n];
+}
+
+void solve()
+{
+    string X;
+    cin &gt;&gt; X;
+    string Y;
+    cin &gt;&gt; Y;
+    cout &lt;&lt; "Length of LCS: " &lt;&lt; lcs(X, Y) &lt;&lt; endl; 
+    cout &lt;&lt; "---------------------------------------------------" &lt;&lt; endl;   
+}
+
+int32_t main()
+{
+    Code By Nishit
+    int t = 1;
+    cin &gt;&gt; t;
+    while (t--)
+    {
+        solve();
+    }
+    return 0;
+}
+      </code></pre>
+      <button id="copy-btn" data-code="code-lcs">Copy Code</button>
+    </div>
+    
+    <!-- Codeblock-6: Prim's Algorithm -->
+    <div class="code-block">
+      <h2>Codeblock-6: Prim's Algorithm (MST)</h2>
+      <pre><code id="code-prims">
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+// Prim's Algorithm for Minimum Spanning Tree (MST)
+int spanningTree(int V, vector&lt;vector&lt;int&gt;&gt; adj[])
+{
+    priority_queue&lt;pair&lt;int, int&gt;, vector&lt;pair&lt;int, int&gt;&gt;, greater&lt;pair&lt;int, int&gt;&gt;&gt; pq;
+    vector&lt;int&gt; vis(V, 0);
+    pq.push({0, 0});
+    int sum = 0;
+    while (!pq.empty())
+    {
+        auto it = pq.top();
+        pq.pop();
+        int node = it.second;
+        int wt = it.first;
+        if (vis[node] == 1)
+            continue;
+        vis[node] = 1;
+        sum += wt;
+        for (auto it : adj[node])
+        {
+            int adjNode = it[0];
+            int edW = it[1];
+            if (!vis[adjNode])
+            {
+                pq.push({edW, adjNode});
+            }
+        }
+    }
+    return sum;
+}
+
+int main()
+{
+    int V = 5;
+    vector&lt;vector&lt;int&gt;&gt; edges = {{0, 1, 2}, {0, 2, 1}, {1, 2, 1}, {2, 3, 2}, {3, 4, 1}, {4, 2, 2}};
+    vector&lt;vector&lt;int&gt;&gt; adj[V];
+    for (auto it : edges)
+    {
+        vector&lt;int&gt; tmp(2);
+        tmp[0] = it[1];
+        tmp[1] = it[2];
+        adj[it[0]].push_back(tmp);
+        tmp[0] = it[0];
+        tmp[1] = it[2];
+        adj[it[1]].push_back(tmp);
+    }
+    int sum = spanningTree(V, adj);
+    cout &lt;&lt; "The sum of all the edge weights: " &lt;&lt; sum &lt;&lt; endl;
+    return 0;
+}
+      </code></pre>
+      <button id="copy-btn" data-code="code-prims">Copy Code</button>
+    </div>
+    
+    <!-- Codeblock-7: Kruskal's Algorithm -->
+    <div class="code-block">
+      <h2>Codeblock-7: Kruskal's Algorithm</h2>
+      <pre><code id="code-kruskal">
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+class DisjointSet {
+    vector&lt;int&gt; rank, parent, size;
+public:
+    DisjointSet(int n) {
+        rank.resize(n + 1, 0);
+        parent.resize(n + 1);
+        size.resize(n + 1);
+        for (int i = 0; i &lt;= n; i++) {
+            parent[i] = i;
+            size[i] = 1;
+        }
+    }
+
+    int findUPar(int node) {
+        if (node == parent[node])
+            return node;
+        return parent[node] = findUPar(parent[node]);
+    }
+
+    void unionByRank(int u, int v) {
+        int ulp_u = findUPar(u);
+        int ulp_v = findUPar(v);
+        if (ulp_u == ulp_v) return;
+        if (rank[ulp_u] &lt; rank[ulp_v])
+            parent[ulp_u] = ulp_v;
+        else if (rank[ulp_v] &lt; rank[ulp_u])
+            parent[ulp_v] = ulp_u;
+        else {
+            parent[ulp_v] = ulp_u;
+            rank[ulp_u]++;
+        }
+    }
+
+    void unionBySize(int u, int v) {
+        int ulp_u = findUPar(u);
+        int ulp_v = findUPar(v);
+        if (ulp_u == ulp_v) return;
+        if (size[ulp_u] &lt; size[ulp_v]) {
+            parent[ulp_u] = ulp_v;
+            size[ulp_v] += size[ulp_u];
+        } else {
+            parent[ulp_v] = ulp_u;
+            size[ulp_u] += size[ulp_v];
+        }
+    }
+};
+
+class Solution {
+public:
+    int spanningTree(int V, vector&lt;vector&lt;int&gt;&gt; adj[])
+    {
+        vector&lt;pair&lt;int, pair&lt;int, int&gt;&gt;&gt; edges;
+        for (int i = 0; i &lt; V; i++) {
+            for (auto it : adj[i]) {
+                int adjNode = it[0];
+                int wt = it[1];
+                int node = i;
+                edges.push_back({wt, {node, adjNode}});
+            }
+        }
+        DisjointSet ds(V);
+        sort(edges.begin(), edges.end());
+        int mstWt = 0;
+        for (auto it : edges) {
+            int wt = it.first;
+            int u = it.second.first;
+            int v = it.second.second;
+            if (ds.findUPar(u) != ds.findUPar(v)) {
+                mstWt += wt;
+                ds.unionBySize(u, v);
+            }
+        }
+        return mstWt;
+    }
+};
+
+int main() {
+    int V = 5;
+    vector&lt;vector&lt;int&gt;&gt; edges = {{0, 1, 2}, {0, 2, 1}, {1, 2, 1}, {2, 3, 2}, {3, 4, 1}, {4, 2, 2}};
+    vector&lt;vector&lt;int&gt;&gt; adj[V];
+    for (auto it : edges) {
+        vector&lt;int&gt; tmp(2);
+        tmp[0] = it[1];
+        tmp[1] = it[2];
+        adj[it[0]].push_back(tmp);
+        tmp[0] = it[0];
+        tmp[1] = it[2];
+        adj[it[1]].push_back(tmp);
+    }
+    Solution obj;
+    int mstWt = obj.spanningTree(V, adj);
+    cout &lt;&lt; "The sum of all the edge weights: " &lt;&lt; mstWt &lt;&lt; endl;
+    return 0;
+}
+      </code></pre>
+      <button id="copy-btn" data-code="code-kruskal">Copy Code</button>
+    </div>
+    
+  </div>
+  
+  <script src="script.js"></script>
+</body>
+</html>
